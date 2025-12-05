@@ -1,0 +1,73 @@
+<?php
+
+namespace App\Filament\Resources\Registrations\Tables;
+
+use App\Models\Doctor;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use App\Models\Registration;
+use Filament\Actions\Action;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
+
+class RegistrationsTable
+{
+    public static function configure(Table $table): Table
+    {
+        return $table
+            ->columns([
+                TextColumn::make('queue_number')
+                    ->label('No.')
+                    ->badge()
+                    ->color('info')
+                    ->sortable(),
+
+                TextColumn::make('reg_number')
+                    ->label('No. Reg')
+                    ->searchable()
+                    ->limit(5)
+                    ->tooltip(fn($record) => $record->reg_number)
+                    ->copyable(),
+
+                TextColumn::make('visit_date')
+                    ->date('d M Y')
+                    ->sortable(),
+
+                TextColumn::make('patient.name')
+                    ->label('Pasien')
+                    ->searchable()
+                    ->weight('bold'),
+
+                TextColumn::make('doctor.name')
+                    ->label('Dokter')
+                    ->description(fn (Registration $record) => $record->doctor->specialization ?? '-'),
+
+                TextColumn::make('status')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'waiting' => 'gray',
+                        'examining' => 'warning',
+                        'done' => 'success',
+                        'cancelled' => 'danger',
+                    }),
+            ])
+            ->filters([
+                //
+            ])
+            ->recordActions([
+                Action::make('print_card') // Pindahkan ke sini
+                    ->label('Cetak Tiket')
+                    ->icon('heroicon-o-printer')
+                    ->color('success')
+                    ->url(fn (Registration $record) => route('registrations.print', $record))
+                    ->openUrlInNewTab(),
+                EditAction::make(),
+            ])
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
+                ]),
+            ]);
+    }
+}
