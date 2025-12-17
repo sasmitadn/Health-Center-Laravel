@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Patients\Pages;
 use App\Filament\Resources\Patients\PatientResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
+use Illuminate\Database\Eloquent\Builder;
 
 class ListPatients extends ListRecords
 {

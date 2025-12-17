@@ -144,7 +144,7 @@
                 <h3 class="text-lg font-bold text-gray-900 dark:text-white">Tidak Ada Jadwal Aktif</h3>
                 <p class="text-sm text-gray-500 mb-6 max-w-xs mx-auto">Anda belum terdaftar dalam antrian pemeriksaan
                     hari ini.</p>
-                <x-filament::button tag="a" href="/registrations/create" size="sm">
+                <x-filament::button tag="a" href="/patient/registrations/create" size="sm">
                     Daftar Baru
                 </x-filament::button>
             </div>

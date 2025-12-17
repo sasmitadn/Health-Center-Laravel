@@ -8,19 +8,30 @@ use App\Filament\Resources\Doctors\Pages\ListDoctors;
 use App\Filament\Resources\Doctors\Schemas\DoctorForm;
 use App\Filament\Resources\Doctors\Tables\DoctorsTable;
 use App\Models\Doctor;
+use App\Models\User;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class DoctorResource extends Resource
 {
-    protected static ?string $model = Doctor::class;
+    protected static ?string $model = User::class;
 
     protected static string|BackedEnum|null $navigationIcon = 'fluentui-doctor-28-o';
 
-    protected static ?string $recordTitleAttribute = 'Doctor';
+    protected static ?string $recordTitleAttribute = 'name';
+    protected static ?string $pluralModelLabel = 'Doctor';
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()->role('doctor')
+            ->has('doctor')
+            // Optimization
+            ->with(['doctor.schedules']);
+    }
 
     public static function form(Schema $schema): Schema
     {

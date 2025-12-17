@@ -22,7 +22,7 @@ class DoctorsTable
                 //     ->searchable()
                 //     ->sortable(),
 
-                TextColumn::make("specialization")
+                TextColumn::make("doctor.specialization")
                     ->formatStateUsing(fn(string $state): string => match ($state) {
                         'general_practitioner' => 'General Practitioner',
                         'dentist' => 'Dentist',
@@ -45,12 +45,16 @@ class DoctorsTable
                     ->badge() // Opsional: Biar tampilannya kotak berwarna (seperti kategori)
                     ->color('info'),
 
-                TextColumn::make('schedules_list') // Ganti nama agar tidak auto-detect relasi list
+                TextColumn::make('doctor.schedules_list') // Ganti nama agar tidak auto-detect relasi list
                     ->label('Jadwal Praktek')
                     ->html()
                     ->state(function ($record) {
                         // 1. Cek Kosong
-                        if ($record->schedules->isEmpty()) {
+                        if (! $record->doctor) {
+                            return '<span class="text-danger-500 italic">Profil Dokter Belum Lengkap</span>';
+                        }
+
+                        if ($record->doctor->schedules->isEmpty()) {
                             return '<span class="text-gray-400 italic">Belum ada jadwal</span>';
                         }
 
@@ -66,7 +70,7 @@ class DoctorsTable
                         ];
 
                         // 3. Logic: Unique -> Sort -> Format -> Implode
-                        return $record->schedules
+                        return $record->doctor->schedules
                             // Unik berdasarkan kombinasi Hari + Jam Mulai
                             ->unique(fn($item) => $item->day . $item->start_time)
                             // Urutkan berdasarkan Ranking Hari
@@ -83,7 +87,7 @@ class DoctorsTable
                             ->implode('<br>');
                     }),
 
-                ToggleColumn::make('is_active')
+                ToggleColumn::make('doctor.is_active')
                     ->sortable(),
             ])
             ->filters([

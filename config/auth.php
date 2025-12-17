@@ -44,6 +44,10 @@ return [
             'driver' => 'session',
             'provider' => 'patients',
         ],
+        'doctor' => [
+            'driver' => 'session',
+            'provider' => 'doctors',
+        ],
     ],
 
     /*
@@ -72,6 +76,11 @@ return [
         'patients' => [   // Tambahkan ini
             'driver' => 'eloquent',
             'model' => App\Models\Patient::class,
+        ],
+
+        'doctors' => [   // Tambahkan ini
+            'driver' => 'eloquent',
+            'model' => App\Models\Doctor::class,
         ],
 
         // 'users' => [

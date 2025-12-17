@@ -3,74 +3,84 @@
 namespace App\Filament\Resources\Patients\Schemas;
 
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules\Password;
 
 class PatientForm
 {
     public static function getFormSchema(): array
     {
         return [
-            Section::make('Identitas Peserta')
-                ->description('Data wajib sesuai KTP/KK')
+            // ==========================================
+            // BAGIAN 1: DATA AKUN (Tabel Users)
+            // ==========================================
+            Section::make('Informasi Akun')
+                ->description('Informasi login dan identitas utama sistem')
+                ->schema([
+                    TextInput::make('name')
+                        ->label('Nama Lengkap')
+                        ->required()
+                        ->maxLength(255),
+
+                    TextInput::make('email')
+                        ->label('Email')
+                        ->email()
+                        ->required()
+                        ->unique(table: 'users', ignoreRecord: true)
+                        ->maxLength(255),
+
+                    TextInput::make('password')
+                        ->label('Password')
+                        ->password()
+                        ->dehydrated(fn (?string $state): bool => filled($state))
+                        ->required(fn (string $operation): bool => $operation === 'create'),
+
+                ])->columns(2),
+
+            // ==========================================
+            // BAGIAN 2: DATA PASIEN (Tabel Patients)
+            // Menggunakan ->relationship('patient')
+            // ==========================================
+            Section::make('Detail Data Pasien')
+                ->description('Data medis dan kependudukan (Disimpan otomatis ke tabel patients)')
+                ->relationship('patient') // <--- INI MAGIC-NYA: Auto handle user_id & save order
                 ->schema([
                     TextInput::make('nik')
                         ->label('NIK')
                         ->required()
                         ->numeric()
                         ->length(16)
-                        ->unique(ignoreRecord: true) // Penting: ignore saat edit
+                        ->unique(table: 'patients', ignoreRecord: true)
                         ->validationMessages([
-                            'unique' => 'NIK ini sudah terdaftar.',
-                            'digits' => 'NIK harus 16 digit.',
+                            'unique' => 'NIK ini sudah terdaftar di sistem.',
+                            'digits' => 'NIK harus tepat 16 digit.',
                         ]),
 
                     TextInput::make('no_bpjs')
                         ->label('Nomor BPJS')
                         ->numeric()
-                        ->maxLength(13) // Sesuaikan standar BPJS
-                        ->placeholder('Opsional jika pasien umum'),
+                        ->maxLength(13)
+                        ->placeholder('Kosongkan jika pasien umum'),
 
-                    TextInput::make('password')
-                        ->label('Password')
-                        ->password()
-                        ->dehydrateStateUsing(fn (string $state): string => Hash::make($state))
-                        ->dehydrated(fn (?string $state): bool => filled($state)) // Hanya simpan jika ada isinya
-                        ->required(fn (string $context): bool => $context === 'create'),
-
-                    TextInput::make('name')
-                        ->label('Nama Lengkap')
-                        ->required()
-                        ->maxLength(255), // Agar nama panjang muat
-                ])->columns(2),
-
-            Section::make('Detail Pribadi')
-                ->schema([
                     DatePicker::make('dob')
                         ->label('Tanggal Lahir')
                         ->required()
-                        ->maxDate(now()) // Tidak boleh tanggal masa depan
-                        ->native(false), // Pakai JS datepicker agar lebih UX friendly
-
-                    TextInput::make('email')
-                        ->label('Email')
-                        ->email()
-                        ->required()
-                        ->maxLength(255), // Agar nama panjang muat
-
-                    // Opsional: Tambahkan Select Gender jika ada di migration
-                    // Select::make('gender')...
+                        ->maxDate(now())
+                        ->native(false)
+                        ->displayFormat('d/m/Y'),
 
                     Textarea::make('address')
                         ->label('Alamat Domisili')
-                        ->rows(3)
                         ->required()
+                        ->rows(3)
                         ->columnSpanFull(),
                 ])->columns(2),
-
         ];
     }
 

@@ -6,17 +6,15 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Spatie\Permission\Traits\HasRoles;
 
 class Patient extends Authenticatable
 {
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasRoles;
 
     protected $fillable = [
-        'name',
         'dob',
         'nik',
-        'password',
-        'email',
         'no_bpjs',
         'address',
     ];
@@ -25,7 +23,8 @@ class Patient extends Authenticatable
         'dob' => 'date',
     ];
 
-    protected $hidden = [
-        'password', 'remember_token',
-    ];
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

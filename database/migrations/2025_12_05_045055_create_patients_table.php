@@ -13,11 +13,9 @@ return new class extends Migration
     {
         Schema::create('patients', function (Blueprint $table) {
             $table->id();
-            $table->string('nik')->unique(); // Kunci identifikasi
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade')->unique();
+            $table->text('nik'); // Kunci identifikasi
             $table->string('no_bpjs')->nullable();
-            $table->string('name');
-            $table->string('email')->unique();
-            $table->string('password');
             $table->date('dob');
             $table->text('address');
             $table->timestamps();

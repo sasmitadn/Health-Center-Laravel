@@ -22,14 +22,14 @@ class PatientsTable
                     ->weight('bold')
                     ->sortable(),
 
-                TextColumn::make('nik')
+                TextColumn::make('patient.nik')
                     ->label('NIK')
                     ->searchable()
                     ->copyable() // Fitur copy cepat (berguna buat input ke P-Care BPJS)
                     ->icon('heroicon-m-identification')
                     ->color('gray'),
 
-                TextColumn::make('no_bpjs')
+                TextColumn::make('patient.no_bpjs')
                     ->label('Status')
                     ->getStateUsing(fn($record) => $record->no_bpjs ?? 'UMUM')
                     ->badge()
@@ -38,13 +38,13 @@ class PatientsTable
                         $query->where('no_bpjs', 'like', "%{$search}%");
                     }),
 
-                TextColumn::make('dob')
+                TextColumn::make('patient.dob')
                     ->label('Usia / Tgl Lahir')
                     ->date('d M Y')
-                    ->description(fn($record) => $record->dob->age . ' Tahun') // Insight krusial: langsung lihat umur
+                    ->description(fn($record) => $record->patient->dob->age . ' Tahun') // Insight krusial: langsung lihat umur
                     ->sortable(),
 
-                TextColumn::make('address')
+                TextColumn::make('patient.address')
                     ->label('Alamat')
                     ->limit(30) // Truncate biar tabel gak lebar
                     ->tooltip(fn($record) => $record->address),

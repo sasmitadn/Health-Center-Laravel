@@ -8,4 +8,10 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateDoctor extends CreateRecord
 {
     protected static string $resource = DoctorResource::class;
+
+    protected function afterCreate(): void
+    {
+        $user = $this->record;
+        $user->assignRole('doctor');
+    }
 }

@@ -10,18 +10,45 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\TimePicker;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\ToggleButtons;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\SelectColumn;
 use Filament\Tables\Columns\ToggleColumn;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
 
 class DoctorForm
 {
-    public static function configure(Schema $schema): Schema
+    public static function getFormSchema(): array
     {
-        return $schema
-            ->components([
-                TextInput::make('name')
-                    ->required(),
+        return [
+            Section::make('Informasi Akun')
+                ->description('Informasi login dan identitas utama sistem')
+                ->schema([
+                    TextInput::make('name')
+                        ->label('Nama Lengkap')
+                        ->required()
+                        ->maxLength(255),
+
+                    TextInput::make('email')
+                        ->label('Email')
+                        ->email()
+                        ->required()
+                        ->unique(table: 'users', ignoreRecord: true)
+                        ->maxLength(255),
+
+                    TextInput::make('password')
+                        ->label('Password')
+                        ->password()
+                        // ->dehydrateStateUsing(fn (string $state): string => Hash::make($state))
+                        ->dehydrated(fn (?string $state): bool => filled($state))
+                        ->required(fn (string $operation): bool => $operation === 'create')
+
+                ])->columns(3),
+
+            Section::make('Detail Data Dokter')
+                ->relationship('doctor')
+                ->schema([
                 Select::make('specialization')
                     ->options([
                         'general_practitioner' => 'General Practitioner', // Dokter Umum
@@ -39,6 +66,7 @@ class DoctorForm
                         'pharmacist' => 'Pharmacist', // Apoteker
                         'nurse' => 'Nurse', // Perawat
                     ])
+                    ->required()
                     ->searchable()
                     ->native(false),
                 ToggleButtons::make('is_active')
@@ -85,9 +113,13 @@ class DoctorForm
                     ->reorderableWithButtons()
                     ->columns(4)
                     ->columnSpanFull()
+                ])->columns(3),
+        ];
+    }
 
-
-            ])
-            ->columns(3);
+    public static function configure(Schema $schema): Schema
+    {
+        return $schema
+            ->components(self::getFormSchema())->columns(1);
     }
 }
